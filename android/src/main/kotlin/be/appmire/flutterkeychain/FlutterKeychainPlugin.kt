@@ -315,9 +315,14 @@ class FlutterKeychainPlugin : FlutterPlugin, MethodCallHandler {
         try {
             when (call.method) {
                 "get" -> {
-                    val encryptedValue: String? = preferences.getString(call.key(), null)
-                    val value = encryptor.decrypt(encryptedValue)
-                    result.success(value)
+                    try {
+                        val encryptedValue: String? = preferences.getString(call.key(), null)
+                        val value = encryptor.decrypt(encryptedValue)
+                        result.success(value)
+                    } catch (e: Exception) {
+                        Log.w("flutter_keychain", "Decryption failed for key '${call.key()}'", e)
+                        result.success(null)
+                    }
                 }
                 "put" -> {
                     val value = encryptor.encrypt(call.value())
